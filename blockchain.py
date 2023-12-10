@@ -20,7 +20,6 @@ class Blockchain(object):
     
     difficulty_target = "0000"
 
-
     def hash_block(self, block):        
         # encode the block into bytes and then hashes it; 
         # ensure that the dictionary is sorted, or you'll have inconsistent hashes
@@ -30,7 +29,7 @@ class Blockchain(object):
     def __init__(self):
         # stores all the blocks in the entire blockchain
         self.chain = []
-
+        self.difficulty = 2.0  
         # temporarily stores the transactions for the current block
         self.current_transactions = []
                 
@@ -153,19 +152,26 @@ class Blockchain(object):
 
     # check if the block's hash meets the difficulty target    
     def valid_proof(self, index, hash_of_previous_block, transactions, nonce):
-
-        # create a string containing the hash of the previous block 
-        # and the block content, including the nonce
-        content = f'{index}{hash_of_previous_block}{transactions}{nonce}'.encode()        
-
-        # hash using sha256
+        content = f'{index}{hash_of_previous_block}{transactions}{nonce}'.encode()
         content_hash = hashlib.sha256(content).hexdigest()
+        # Adjust the number of leading zeroes required based on difficulty
+        return content_hash[:int(self.difficulty)] == '0' * int(self.difficulty)
 
-        # check if the hash meets the difficulty target
-        return content_hash[:len(self.difficulty_target)] == self.difficulty_target
+    def adjust_difficulty(self, last_block_time, current_block_time):
+        """
+        Adjust the difficulty based on the time taken to mine the last block.
+        """
+        time_diff = current_block_time - last_block_time
+        if time_diff < 10:  # Assuming target time is 10 seconds
+            self.difficulty += 0.1
+        else:
+            self.difficulty -= 0.1
+        self.difficulty = max(1.0, self.difficulty)  # Ensure difficulty doesn't go below 1.0
+
 
     # creates a new block and adds it to the blockchain
     def append_block(self, nonce, hash_of_previous_block):
+        # Construct the new block
         block = {
             'index': len(self.chain),
             'timestamp': time(),
@@ -174,10 +180,16 @@ class Blockchain(object):
             'hash_of_previous_block': hash_of_previous_block
         }
 
-        # reset the current list of transactions
+        # Reset the current list of transactions
         self.current_transactions = []
 
-        # add the new block to the blockchain
+        # Adjust the difficulty if there are more than one block
+        if len(self.chain) > 1:
+            last_block_time = self.chain[-2]['timestamp']
+            current_block_time = block['timestamp']
+            self.adjust_difficulty(last_block_time, current_block_time)
+
+        # Append the new block to the chain
         self.chain.append(block)
         return block
 
