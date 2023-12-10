@@ -481,6 +481,7 @@ def getTransactions():
     return jsonify(newTr), 200
 
 
+
 # --------------
 
 if __name__ == '__main__':
