@@ -19,7 +19,7 @@ from urllib.parse import urlparse
 class Blockchain(object):
     
     difficulty_target = "0000"
-
+    difficulty = 0.1
 
     def hash_block(self, block):        
         # encode the block into bytes and then hashes it; 
@@ -162,7 +162,15 @@ class Blockchain(object):
         content_hash = hashlib.sha256(content).hexdigest()
 
         # check if the hash meets the difficulty target
-        return content_hash[:len(self.difficulty_target)] == self.difficulty_target
+        # return content_hash[:len(self.difficulty_target)] == self.difficulty_target
+        # convert hash to a large integer
+        content_hash_int = int(content_hash, 16)
+
+        # calculate the maximum value from the difficulty level
+        max_value = int(1 / self.difficulty)
+
+        # check if the hash integer is less than the max value
+        return content_hash_int < max_value
 
     # creates a new block and adds it to the blockchain
     def append_block(self, nonce, hash_of_previous_block):
