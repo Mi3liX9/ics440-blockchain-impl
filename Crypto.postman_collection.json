@@ -1,0 +1,137 @@
+{
+	"info": {
+		"_postman_id": "e2436d39-5bab-414e-94c1-09bc29e80af5",
+		"name": "Crypto",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24839410",
+		"_collection_link": "https://carchipapp.postman.co/workspace/My-Workspace~e8b34aab-60a6-4dd7-886c-7cf7ec067ed0/collection/24839410-e2436d39-5bab-414e-94c1-09bc29e80af5?action=share&source=collection_link&creator=24839410"
+	},
+	"item": [
+		{
+			"name": "getFullBlockchain",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "192.168.43.233:5001/blockchain",
+					"host": [
+						"192",
+						"168",
+						"43",
+						"233"
+					],
+					"port": "5001",
+					"path": [
+						"blockchain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "mine",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "192.168.43.233:5000/mine",
+					"host": [
+						"192",
+						"168",
+						"43",
+						"233"
+					],
+					"port": "5000",
+					"path": [
+						"mine"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "syncNodes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "192.168.43.233:5001/nodes/sync",
+					"host": [
+						"192",
+						"168",
+						"43",
+						"233"
+					],
+					"port": "5001",
+					"path": [
+						"nodes",
+						"sync"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addNodes",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"nodes\": [\r\n        \"http://192.168.43.233:5001\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "192.168.43.233:5000/nodes/add_nodes",
+					"host": [
+						"192",
+						"168",
+						"43",
+						"233"
+					],
+					"port": "5000",
+					"path": [
+						"nodes",
+						"add_nodes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "newTransaction",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"sender\": \"0.0.0.0:5000\",\r\n    \"recipient\": \"0.0.0.0:5001\",\r\n    \"amount\": 10\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "192.168.43.233:5000/transactions/new",
+					"host": [
+						"192",
+						"168",
+						"43",
+						"233"
+					],
+					"port": "5000",
+					"path": [
+						"transactions",
+						"new"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
