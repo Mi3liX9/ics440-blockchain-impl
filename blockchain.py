@@ -19,16 +19,7 @@ from urllib.parse import urlparse
 class Blockchain(object):
     
     difficulty_target = "0000"
-    difficulty = 0.1
-    def encrypt_amount(self, amount, key):
-        # Encrypts the amount using additive shift cipher
-        encrypted_amount = (amount + key) % 1000000 
-        return encrypted_amount
 
-    def decrypt_amount(self, encrypted_amount, key):
-        # Decrypts the amount
-        decrypted_amount = (encrypted_amount - key) % 1000000  # Ensure the amount wraps around
-        return decrypted_amount
 
     def hash_block(self, block):        
         # encode the block into bytes and then hashes it; 
@@ -171,15 +162,7 @@ class Blockchain(object):
         content_hash = hashlib.sha256(content).hexdigest()
 
         # check if the hash meets the difficulty target
-        # return content_hash[:len(self.difficulty_target)] == self.difficulty_target
-        # convert hash to a large integer
-        content_hash_int = int(content_hash, 16)
-
-        # calculate the maximum value from the difficulty level
-        max_value = int(1 / self.difficulty)
-
-        # check if the hash integer is less than the max value
-        return content_hash_int < max_value
+        return content_hash[:len(self.difficulty_target)] == self.difficulty_target
 
     # creates a new block and adds it to the blockchain
     def append_block(self, nonce, hash_of_previous_block):
@@ -198,12 +181,10 @@ class Blockchain(object):
         self.chain.append(block)
         return block
 
-    def add_transaction(self, sender, recipient, amount, key):
+    def add_transaction(self, sender, recipient, amount):
         # adds a new transaction to the current list of transactions
-        encrypted_amount = self.encrypt_amount(amount, key)
-
         self.current_transactions.append({
-            'amount': encrypted_amount,            
+            'amount': amount,            
             'recipient': recipient,
             'sender': sender,
         })
@@ -320,8 +301,6 @@ class Blockchain(object):
 
 app = Flask(__name__)
 
-key = 5
-
 # generate a globally unique address for this node
 node_identifier = str(uuid4()).replace('-', '')
 
@@ -356,7 +335,6 @@ def mine_block():
         sender="0",
         recipient=node_identifier,
         amount= float(decrypted_amount)*0.1,
-        key=key
     )
 
     # obtain the hash of last block in the blockchain 
@@ -415,8 +393,7 @@ def new_transaction():
     index = blockchain.add_transaction(
         values['sender'], 
         values['recipient'], 
-        newAmount,
-        key=key
+        newAmount
     )
 
     response = {'message': f'Transaction will be added to Block {index}'}
@@ -486,26 +463,20 @@ def getPublicKey():
 
 @app.route("/transactions/get_transactions", methods=['GET'])
 def getTransactions():
+
     transactions = blockchain.show_transactions()
     newTr = []
 
     for transaction in transactions:
-        # Split the amount and the signature
-        encrypted_amount, signature = str(transaction['amount']).split(',')
-
-        # Decrypt the amount
-        decrypted_amount = blockchain.decrypt_amount(int(encrypted_amount), key) 
-
-        # Verify the decrypted amount
-        is_verified = blockchain.verify(str(decrypted_amount), signature, public_key)
-
-        # Construct a new transaction object with decrypted and verified amount
-        new_transaction = {
-            'amount': f"{decrypted_amount}, verified: {is_verified}",
-            'recipient': transaction['recipient'],
-            'sender': transaction['sender']
-        }
-        newTr.append(new_transaction)
+        if transaction['sender'] == node_identifier:
+            amount = str(transaction['amount'])
+            amount = amount.split(',')
+            amount[0] = blockchain.decryptRailFence(str(amount[0]),2)
+            print(amount)
+            newAmount = amount[0] + " , verified: " + str(blockchain.verify(amount[0], amount[1], public_key))
+            newTr.append({"amount": newAmount, "recipient": transaction['recipient'], "sender": transaction['sender']})
+        else:
+            newTr.append(transaction)
 
     return jsonify(newTr), 200
 
