@@ -18,9 +18,6 @@ from urllib.parse import urlparse
 
 class Blockchain(object):
 
-  difficulty_target = "0000"
-
-
   def hash_block(self, block):
     # encode the block into bytes and then hashes it;
     # ensure that the dictionary is sorted, or you'll have inconsistent hashes
@@ -30,6 +27,7 @@ class Blockchain(object):
   def __init__(self):
     # stores all the blocks in the entire blockchain
     self.chain = []
+    self.difficulty = 1.0
 
     # temporarily stores the transactions for the current block
     self.current_transactions = []
@@ -165,7 +163,7 @@ class Blockchain(object):
     content_hash = hashlib.sha256(content).hexdigest()
 
     # check if the hash meets the difficulty target
-    return content_hash[:len(self.difficulty_target)] == self.difficulty_target
+    return content_hash[:int(self.difficulty)] == '0' * int(self.difficulty)
 
   def adjust_difficulty(self, last_block_time, current_block_time):
         """
